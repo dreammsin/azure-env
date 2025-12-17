@@ -44,13 +44,23 @@ $vmsku = $computesku | Where-Object { $_.resourceType -eq 'virtualMachines' }
 $vmsku[0]
 $vmsku[0].capabilities
 
-$cpuFilter = @{"vCPUs"="16"}
-#$cpuFilter = @{name="vCPUs"; value="16"}
-$selectSku = $vmsku | Where-Object { $_.capabilities -contains $cpuFilter}
-#$selectSku = $vmsku | Where-Object { $cpuFilter -contains $_.capabilities}
-$selectSku | Format-Table name, tier, family, size, capabilities -AutoSize
+## Get VM SKUs with specific capabilities
+$cpu8 = $vmsku | Where-Object { $_.capabilities | Where-Object { $_.name -eq 'vCPUs' -and $_.value -eq "8" } }
+$cpu8 | Format-Table -AutoSize
 
-#$selectSku = $vmsku | Where-Object { $_.capabilities.name -eq 'vCPUs' -and $_.capabilities.value -ge 16 -and $_.capabilities.name -eq 'MemoryGB' -and $_.capabilities.value -ge 32 }
-##$vcpu = $vmsku --query "[?capabilities.name=='vCPUs'] | [?capabilities.value=='16']"
-#$vmlist = $vmsku | Where-Object { $_.capabilities.name -eq 'vCPUs' }
-#$vmlist = $vmsku | Where-Object { $_.capabilities.name -eq 'vCPUs' -and $_.capabilities.value -eq '16' }
+## Get VM SKUs with specific capabilities
+$x64 = $vmsku | Where-Object {
+  $subset = $_.capabilities 
+  ( $subset | Where-Object { $_.name -eq 'CpuArchitectureType' -and $_.value -eq 'x64'}) -and 
+  ( $subset | Where-Object { $_.name -eq 'vCPUs' -and $_.value -eq '8' }) 
+}
+$x64 = $vmsku | Where-Object { $subset = $_.capabilities; ( $subset | Where-Object { $_.name -eq 'CpuArchitectureType' -and $_.value -eq 'x64'}) -and ( $subset | Where-Object { $_.name -eq 'vCPUs' -and $_.value -eq '8' }) } 
+$x64 | Format-Table -AutoSize
+
+## Get VM Images and providers and offers and skus
+az vm image list-publishers --location $loc | ConvertFrom-Json | Sort-Object name | Format-Table -AutoSize
+az vm image list-offers --location $loc --publisher Canonical | ConvertFrom-Json | Format-Table -AutoSize
+az vm image list-skus --location $loc --publisher Canonical --offer 0001-com-ubuntu-server-jammy | ConvertFrom-Json | Format-Table -AutoSize
+
+az vm image list-skus --location $loc --publisher oracle --offer oracle-linux
+$imagelist = az vm image list-skus --location $loc | ConvertFrom-Json | Format-Table name, publisher, offer -AutoSize

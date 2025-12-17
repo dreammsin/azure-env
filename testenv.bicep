@@ -9,7 +9,7 @@ param adminUsername string = 'azureuser'
 
 @description('Admin password for the VM.')
 @secure()
-param adminPassword string
+param adminPassword string = 'adminPassword123!'
 
 // Log Analytics Workspace
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
@@ -112,7 +112,7 @@ resource linuxVM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
   location: location
   properties: {
     hardwareProfile: {
-      vmSize: 'Standard_B2s'
+      vmSize: 'Standard_D2s_v6'
     }
     osProfile: {
       computerName: 'vm-${baseName}'
