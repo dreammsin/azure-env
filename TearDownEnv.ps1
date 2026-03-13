@@ -1,4 +1,6 @@
 ## parameters
+## subid: Subscription ID to use for cleanup, default is "650cfdc5-486b-4630-93df-176cb090b2e8"
+## MCAPS tenant sub = 3ee59855-3671-40eb-88cf-68f92f5481a1
 param(
   [string]$subid = "650cfdc5-486b-4630-93df-176cb090b2e8"
 )

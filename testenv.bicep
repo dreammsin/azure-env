@@ -143,6 +143,78 @@ resource linuxVM 'Microsoft.Compute/virtualMachines@2023-09-01' = {
   }
 }
 
+// Azure Monitor Agent Extension for Linux VM
+resource azureMonitorAgentExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = {
+  parent: linuxVM
+  name: 'AzureMonitorLinuxAgent'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitor'
+    type: 'AzureMonitorLinuxAgent'
+    typeHandlerVersion: '1.25'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+    settings: {
+      workspaceId: logAnalyticsWorkspace.properties.customerId
+    }
+    protectedSettings: {
+      workspaceKey: logAnalyticsWorkspace.listKeys().primarySharedKey
+    }
+  }
+}
+
+// Dependency Agent Extension for Linux VM
+resource dependencyAgentExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = {
+  parent: linuxVM
+  name: 'DependencyAgentLinux'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
+    type: 'DependencyAgentLinux'
+    typeHandlerVersion: '9.10'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+  }
+  dependsOn: [
+    azureMonitorAgentExtension
+  ]
+}
+
+// Network Watcher Agent Extension for Linux VM
+resource networkWatcherExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = {
+  parent: linuxVM
+  name: 'NetworkWatcherAgentLinux'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.NetworkWatcher'
+    type: 'NetworkWatcherAgentLinux'
+    typeHandlerVersion: '1.4'
+    autoUpgradeMinorVersion: true
+  }
+  dependsOn: [
+    dependencyAgentExtension
+  ]
+}
+
+// Custom Script Extension for Linux VM (example: install updates)
+resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = {
+  parent: linuxVM
+  name: 'CustomScriptExtension'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Extensions'
+    type: 'CustomScript'
+    typeHandlerVersion: '2.1'
+    autoUpgradeMinorVersion: true
+    settings: {
+      commandToExecute: 'sudo apt-get update && sudo apt-get upgrade -y'
+    }
+  }
+  dependsOn: [
+    networkWatcherExtension
+  ]
+}
+
 // Storage Account for Function Apps
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: toLower('st${replace(baseName, '-', '')}')
