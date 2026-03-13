@@ -27,8 +27,8 @@ az vm create `
     --public-ip-sku Standard `
     --public-ip-address-allocation static `
     --nic-delete-option Delete `
-    --public-ip-address-delete-option Delete `
     --os-disk-delete-option Delete
+#    --public-ip-address-delete-option Delete `
 
 # Wait for VM to be in running state
 Write-Host "Waiting for VM to reach running state..." -ForegroundColor Yellow
