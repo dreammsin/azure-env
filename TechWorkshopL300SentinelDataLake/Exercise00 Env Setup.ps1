@@ -60,6 +60,7 @@ az monitor log-analytics workspace create `
 
 Write-Host "Log Analytics workspace created successfully!" -ForegroundColor Green
 
+
 ## --------------------------------------------------------------------------------------------------------
 ## Exercise00-03 Defender Enable
 # Set the subscription context
@@ -100,3 +101,4 @@ az security setting update `
 #    --enabled true
 
 Write-Host "All configurations completed successfully!" -ForegroundColor Green
+
